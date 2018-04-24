@@ -15,14 +15,15 @@ running](/getting-started), let's use Conduit to diagnose issues.
 
 First, let's use the `conduit stat` command to get an overview of deployment
 health:
-#### `conduit stat deployments`
+#### `conduit -n emojivoto stat deploy`
 
 ### Your results will be something like:
 ```
-NAME                   REQUEST_RATE   SUCCESS_RATE   P50_LATENCY   P99_LATENCY
-emojivoto/emoji              2.0rps        100.00%           0ms           0ms
-emojivoto/voting             0.6rps         66.67%           0ms           0ms
-emojivoto/web                2.0rps         95.00%           0ms           0ms
+NAME       MESHED   SUCCESS      RPS   LATENCY_P50   LATENCY_P95   LATENCY_P99
+emoji         1/1   100.00%   2.0rps           1ms           4ms           5ms
+vote-bot      1/1         -        -             -             -             -
+voting        1/1    89.66%   1.0rps           1ms           5ms           5ms
+web           1/1    94.92%   2.0rps           5ms          10ms          18ms
 ```
 
 We can see that the `voting` service is performing far worse than the others.
@@ -32,7 +33,7 @@ the logs, attaching a debugger, etc. Conduit gives us a new tool that we can use
 - a live view of traffic going through the deployment. Let's use the `tap`
 command to take a look at requests currently flowing through this deployment.
 
-#### `conduit tap deploy emojivoto/voting`
+#### `conduit -n emojivoto tap deploy/voting`
 
 This gives us a lot of requests:
 
@@ -59,7 +60,7 @@ requests.
 Let's figure out where those are coming from. Let's run the `tap` command again,
 and grep the output for `Unknown`s:
 
-####  ```conduit tap deploy emojivoto/voting | grep Unknown -B 2```
+####  ```conduit -n emojivoto tap deploy/voting | grep Unknown -B 2```
 
 ```
 req id=0:212 src=172.17.0.8:58326 dst=172.17.0.10:8080 :method=POST :authority=voting-svc.emojivoto:8080 :path=/emojivoto.v1.VotingService/VotePoop
@@ -76,7 +77,7 @@ We can see that all of the `grpc-status=Unknown`s are coming from the `VotePoop`
 endpoint. Let's use the `tap` command's flags to narrow down our output to just
 this endpoint:
 
-####  ```conduit tap deploy emojivoto/voting --path /emojivoto.v1.VotingService/VotePoop```
+####  ```conduit -n emojivoto tap deploy/voting --path /emojivoto.v1.VotingService/VotePoop```
 
 ```
 req id=0:264 src=172.17.0.8:58326 dst=172.17.0.10:8080 :method=POST :authority=voting-svc.emojivoto:8080 :path=/emojivoto.v1.VotingService/VotePoop

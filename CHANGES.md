@@ -1,3 +1,27 @@
+## v0.4.1
+
+Conduit 0.4.1 builds on the telemetry work from 0.4.0, providing rich,
+Kubernetes-aware observability and debugging.
+
+* Web UI
+  * **New** Automatically-configured Grafana dashboards for Services, Pods,
+    ReplicationControllers, and Conduit Mesh Health. These dashboards also expose
+    new TCP-level stats.
+  * **New** `conduit dashboard` Pod and ReplicationController views.
+* Command-line interface
+  * `conduit tap` has been completely rewritten to accept kubectl-style resources.
+    This command now supports tapping a single Kubernetes resource or group of
+    resources. The `--to` filter can be used to filter tapped requests by destination.
+  * `conduit stat` and `conduit tap` now both support `namespaces`, `deployments`,
+    `replicationcontrollers`, `services`, and `pods`, via kubectl-style resource
+    strings like `deploy`, `deploy/web`, and `deploy web`.
+* Proxy (data plane)
+  * **New** Tap support for filtering by and exporting destination metadata.
+  * **New** Prometheus-formatted TCP-level stats, including connection counts
+    and durations, and throughput.
+* Control Plane
+  * Fixed bug in the Destination Service that would return non-running pods.
+
 ## v0.4.0
 
 Conduit 0.4.0 overhauls Conduit's telemetry system and improves service discovery
